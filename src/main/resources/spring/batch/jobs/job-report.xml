@@ -1,0 +1,276 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:batch="http://www.springframework.org/schema/batch"
+	xmlns:task="http://www.springframework.org/schema/task"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:jdbc="http://www.springframework.org/schema/jdbc"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans	
+	http://www.springframework.org/schema/beans/spring-beans.xsd 	
+    http://www.springframework.org/schema/beans 
+    http://www.springframework.org/schema/beans/spring-beans.xsd
+    http://www.springframework.org/schema/batch 
+    http://www.springframework.org/schema/batch/spring-batch.xsd
+    http://www.springframework.org/schema/context 
+    http://www.springframework.org/schema/context/spring-context.xsd 			
+    http://www.springframework.org/schema/jdbc 
+	http://www.springframework.org/schema/jdbc/spring-jdbc.xsd
+	http://www.springframework.org/schema/tx 
+	http://www.springframework.org/schema/tx/spring-tx-3.0.xsd
+	http://www.springframework.org/schema/task
+	http://www.springframework.org/schema/task/spring-task.xsd">
+
+	<bean id="report" class="com.mkyong.model.Report"
+		scope="prototype" />
+		
+	<bean id="compositeProcessor" class="org.springframework.batch.item.support.CompositeItemProcessor">
+	<property name="delegates">
+		<list>
+			<ref bean="settlementValidationProcessor" />
+			<ref bean="jobProcessor" />
+		</list>
+	</property>
+</bean>	
+		
+
+	<batch:job id="LoadVisaSettlementsJob">
+		<batch:step id="loadVisaSettlementsStep">
+			<batch:tasklet>
+				<batch:chunk reader="cvsFileItemReader"
+					processor="compositeProcessor" writer="myoracleItemWriter"
+					commit-interval="#{jobParameters[commitSize]}" 
+					skip-limit="1000000" >
+					 <batch:skippable-exception-classes>
+					        <batch:include class="java.lang.Exception"/>     
+					        <batch:include class="org.springframework.batch.item.validator.ValidationException"/>                                            
+					 </batch:skippable-exception-classes> 
+				</batch:chunk>
+				<batch:listeners>				
+					<batch:listener ref="transactionItemReaderListener" />
+					<batch:listener ref="transactionItemWriterListener" />
+					<batch:listener ref="missedItemsSkipListener" />
+		    	</batch:listeners>
+			</batch:tasklet>
+		</batch:step>
+	</batch:job>
+	
+	
+	<batch:job id="LoadMasterCardSettlementsJob">
+		<batch:step id="loadMasterCardSettlementsStep">
+			<batch:tasklet>
+				<batch:chunk reader="cvsFileItemReader"
+					processor="compositeProcessor" writer="myoracleItemWriter"
+					commit-interval="#{jobParameters[commitSize]}"
+					skip-limit="1000000">
+					 <batch:skippable-exception-classes>
+					       <batch:include class="java.lang.Exception"/>
+					        <batch:include class="java.lang.Exception"/>     
+					        <batch:include class="org.springframework.batch.item.validator.ValidationException"/>                                               
+					 </batch:skippable-exception-classes> 
+				</batch:chunk>
+				<batch:listeners>				
+					<batch:listener ref="transactionItemReaderListener" />
+					<batch:listener ref="transactionItemWriterListener" />
+					<batch:listener ref="missedItemsSkipListener" />
+		    	</batch:listeners>
+			</batch:tasklet>
+		</batch:step>
+	</batch:job>
+	
+	
+	<batch:job id="LoadJcbSettlementsJob">
+		<batch:step id="loadJcbCardSettlementsStep">
+			<batch:tasklet>
+				<batch:chunk reader="cvsFileItemReader"
+					processor="compositeProcessor" writer="myoracleItemWriter"
+					commit-interval="#{jobParameters[commitSize]}"
+					skip-limit="1000000">
+					<batch:skippable-exception-classes>
+					        <batch:include class="java.lang.Exception"/>     
+					        <batch:include class="org.springframework.batch.item.validator.ValidationException"/>                                           
+					 </batch:skippable-exception-classes> 
+				</batch:chunk>
+				
+				<batch:listeners>				
+					<batch:listener ref="transactionItemReaderListener" />
+					<batch:listener ref="transactionItemWriterListener" />
+					<batch:listener ref="missedItemsSkipListener" />
+		    	</batch:listeners>
+			</batch:tasklet>
+		</batch:step>
+	</batch:job>
+
+	<batch:job id="LoadDinersSettlementsJob">
+		<batch:step id="loadDinersCardSettlementsStep">
+			<batch:tasklet>
+				<batch:chunk reader="cvsFileItemReader"
+					processor="compositeProcessor" writer="myoracleItemWriter"
+					commit-interval="#{jobParameters[commitSize]}"
+					skip-limit="1000000">
+					<batch:skippable-exception-classes>
+					        <batch:include class="java.lang.Exception"/>     
+					        <batch:include class="org.springframework.batch.item.validator.ValidationException"/>                                              
+					 </batch:skippable-exception-classes> 
+				</batch:chunk>
+				<batch:listeners>				
+					<batch:listener ref="transactionItemReaderListener" />
+					<batch:listener ref="transactionItemWriterListener" />
+					<batch:listener ref="missedItemsSkipListener" />
+		    	</batch:listeners>
+			</batch:tasklet>
+		</batch:step>
+	</batch:job>
+	
+	<batch:job id="LoadAmexSettlementsJob">
+		<batch:step id="loadAmexCardSettlementsStep">
+			<batch:tasklet>
+				<batch:chunk reader="cvsFileItemReader"
+					processor="compositeProcessor" writer="myoracleItemWriter"
+					commit-interval="#{jobParameters[commitSize]}"
+					skip-limit="1000000">
+					<batch:skippable-exception-classes>
+					       <batch:include class="java.lang.Exception"/>     
+					        <batch:include class="org.springframework.batch.item.validator.ValidationException"/>                               
+					 </batch:skippable-exception-classes> 
+				</batch:chunk>
+				<batch:listeners>				
+					<batch:listener ref="transactionItemReaderListener" />
+					<batch:listener ref="transactionItemWriterListener" />
+					<batch:listener ref="missedItemsSkipListener" />
+		    	</batch:listeners>
+			</batch:tasklet>
+		</batch:step>
+	</batch:job>
+	
+
+	<batch:job id="LoadDiscoverSettlementsJob">
+		<batch:step id="loadDiscoverCardSettlementsStep">
+			<batch:tasklet>
+				<batch:chunk reader="cvsFileItemReader"
+					processor="compositeProcessor" writer="myoracleItemWriter"
+					commit-interval="#{jobParameters[commitSize]}"
+					skip-limit="1000000">
+					<batch:skippable-exception-classes>
+					       <batch:include class="java.lang.Exception"/>     
+					        <batch:include class="org.springframework.batch.item.validator.ValidationException"/>                                           
+					 </batch:skippable-exception-classes> 
+				</batch:chunk>
+				<batch:listeners>				
+					<batch:listener ref="transactionItemReaderListener" />
+					<batch:listener ref="transactionItemWriterListener" />
+					<batch:listener ref="missedItemsSkipListener" />
+		    	</batch:listeners>
+			</batch:tasklet>
+		</batch:step>
+	</batch:job>
+	
+	<batch:job id="LoadEnrouteSettlementsJob">
+		<batch:step id="loadEnrouteCardSettlementsStep">
+			<batch:tasklet>
+				<batch:chunk reader="cvsFileItemReader"
+					processor="compositeProcessor" writer="myoracleItemWriter"
+					commit-interval="#{jobParameters[commitSize]}"
+					skip-limit="1000000">
+					<batch:skippable-exception-classes>
+					        <batch:include class="java.lang.Exception"/>     
+					        <batch:include class="org.springframework.batch.item.validator.ValidationException"/>                                             
+					 </batch:skippable-exception-classes> 
+				</batch:chunk>
+				<batch:listeners>				
+					<batch:listener ref="transactionItemReaderListener" />
+					<batch:listener ref="transactionItemWriterListener" />
+					<batch:listener ref="missedItemsSkipListener" />
+		    	</batch:listeners>
+			</batch:tasklet>
+		</batch:step>
+	</batch:job>
+	
+	<batch:job id="LoadVoyagerSettlementsJob">
+		<batch:step id="loadVoyagerCardSettlementsStep">
+			<batch:tasklet>
+				<batch:chunk reader="cvsFileItemReader"
+					processor="compositeProcessor" writer="myoracleItemWriter"
+					commit-interval="#{jobParameters[commitSize]}"
+					skip-limit="1000000">
+					<batch:skippable-exception-classes>
+					        <batch:include class="java.lang.Exception"/>     
+					        <batch:include class="org.springframework.batch.item.validator.ValidationException"/>                                              
+					 </batch:skippable-exception-classes> 
+				</batch:chunk>
+				<batch:listeners>				
+					<batch:listener ref="transactionItemReaderListener" />
+					<batch:listener ref="transactionItemWriterListener" />
+					<batch:listener ref="missedItemsSkipListener" />
+		    	</batch:listeners>
+			</batch:tasklet>
+		</batch:step>
+	</batch:job>
+
+
+	<bean id="inputFile"
+		class="org.springframework.core.io.FileSystemResource" scope="step">
+		<constructor-arg
+			value="#{jobParameters[processingFile]}" />
+	</bean>
+
+
+	<bean id="cvsFileItemReader"
+		class="org.springframework.batch.item.file.FlatFileItemReader">
+		<!-- Read a csv file -->
+		<property name="resource" ref="inputFile" />
+		<property name="lineMapper">
+			<bean
+				class="org.springframework.batch.item.file.mapping.DefaultLineMapper">
+
+				<!-- split it -->
+				<property name="lineTokenizer">
+					<bean
+						class="org.springframework.batch.item.file.transform.DelimitedLineTokenizer">
+						<property name="names"
+							value="creditCardNumber,orderDate,amount,mccCode,terminalId,transactionReference,modeOfPayment" />
+					</bean>
+				</property>		
+				<property name="fieldSetMapper">
+					<!-- map to an object -->
+					<bean class="com.mkyong.model.ReportFieldSetMapper" />
+				</property>
+			</bean>
+		</property>
+		<property name="linesToSkip" value="1" />
+	</bean>
+
+	<bean id="myoracleItemWriter"
+		class="org.springframework.batch.item.database.JdbcBatchItemWriter">
+		<property name="dataSource" ref="dataSource" />
+		<property name="sql">
+			<value>
+            <![CDATA[        
+            	insert into ACQUIRER_SETTLEMENTS(ID, CREDIT_CARD_NUMBER, ORDER_DATE, AMOUNT, MCC_CODE,TERMINAL_ID, TRANSACTION_REF, MODE_OF_PAYMENT,META_JOB_ID, META_JOB_START_TIME, META_PROCESSING_FILE, META_ACQUIRER, META_CHUNK_COMMIT_SIZE
+            	,USER_RULES_SCORE, SYSTEM_RULES_SCORE, TOTAL_SCORE) values
+            	 (:id, :creditCardNumber, :orderDate , :amount , :mccCode,:terminalId, :transactionReference , :modeOfPayment, :jobId, :loadedDate, :processingFile, :acquirer, :commitSize,
+            	 :userrulesscore, :systemrulescore, :totalScore)
+            ]]>
+			</value>
+		</property>
+		<!-- It will take care matching between object property and sql name parameter -->
+		<property name="itemSqlParameterSourceProvider">
+			<bean
+				class="org.springframework.batch.item.database.BeanPropertyItemSqlParameterSourceProvider" />
+		</property>
+	</bean>
+	
+	
+	 <bean id="settlementValidationProcessor"       
+	 	  class="org.springframework.batch.item.validator.ValidatingItemProcessor">   
+	 	<property name="validator">    
+	 	         <bean class="com.mkyong.validators.BeanValidator"/>
+	 	</property> 
+	</bean>
+
+
+	<task:scheduled-tasks>
+		<task:scheduled ref="jobScheduler"
+			method="runDeceptiveDomainsJob" fixed-delay="${scheduled.delay}" />
+	</task:scheduled-tasks>
+	
+</beans>
